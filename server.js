@@ -27,30 +27,46 @@ const supabase = createClient(
 // Email sending function using Resend
 async function sendEmail(to, subject, html) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const EMAIL_FROM = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+
+  console.log('=== Email Send Attempt ===');
+  console.log('To:', to);
+  console.log('From:', EMAIL_FROM);
+  console.log('API Key exists:', !!RESEND_API_KEY);
+  console.log('API Key starts with:', RESEND_API_KEY ? RESEND_API_KEY.substring(0, 6) + '...' : 'N/A');
 
   if (!RESEND_API_KEY || RESEND_API_KEY === 're_your_api_key') {
-    console.log('Email would be sent to:', to);
-    console.log('Subject:', subject);
     console.log('(Email not sent - RESEND_API_KEY not configured)');
     return { success: true, mock: true };
   }
 
   try {
+    const emailPayload = {
+      from: EMAIL_FROM,
+      to: [to],
+      subject: subject,
+      html: html
+    };
+
+    console.log('Sending email with payload:', JSON.stringify({ ...emailPayload, html: '[HTML content]' }));
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || 'ReputeHQ <noreply@reputehq.com>',
-        to: [to],
-        subject: subject,
-        html: html
-      })
+      body: JSON.stringify(emailPayload)
     });
 
     const data = await response.json();
+    console.log('Resend API response status:', response.status);
+    console.log('Resend API response:', JSON.stringify(data));
+
+    if (!response.ok) {
+      console.error('Email send failed:', data);
+    }
+
     return { success: response.ok, data };
   } catch (error) {
     console.error('Email error:', error);
