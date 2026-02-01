@@ -239,6 +239,58 @@ app.post('/api/auth/verify-email', async (req, res) => {
       throw new Error(updateError.message);
     }
 
+    // Send welcome/confirmation email
+    const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login.html`;
+    await sendEmail(
+      user.email,
+      'Welcome to ReputeHQ - Email Verified!',
+      `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #1A1F36 0%, #2D3555 100%); padding: 40px 30px; text-align: center; }
+          .header h1 { color: #00D4AA; margin: 0; font-size: 28px; }
+          .content { padding: 40px 30px; }
+          .content h2 { color: #1A1F36; margin-top: 0; }
+          .content p { color: #6B7280; line-height: 1.6; }
+          .success-badge { display: inline-block; background: #00D4AA; color: #1A1F36; padding: 8px 16px; border-radius: 20px; font-weight: 600; margin-bottom: 20px; }
+          .button { display: inline-block; background: #00D4AA; color: #1A1F36 !important; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 20px 0; }
+          .footer { padding: 20px 30px; background: #f9fafb; text-align: center; color: #9CA3AF; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>ReputeHQ</h1>
+          </div>
+          <div class="content">
+            <span class="success-badge">✓ Email Verified</span>
+            <h2>Welcome, ${user.name}!</h2>
+            <p>Great news! Your email address has been successfully verified and your ReputeHQ account is now active.</p>
+            <p>You can now sign in and start managing your business reputation.</p>
+            <p style="text-align: center;">
+              <a href="${loginUrl}" class="button">Sign In to Your Account</a>
+            </p>
+            <p>Here's what you can do with ReputeHQ:</p>
+            <ul style="color: #6B7280; line-height: 2;">
+              <li>Monitor and respond to customer reviews</li>
+              <li>Track your business reputation score</li>
+              <li>Generate AI-powered review responses</li>
+              <li>Manage multiple business locations</li>
+            </ul>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} ReputeHQ. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+      `
+    );
+
     res.json({ success: true, message: 'Email verified successfully. You can now sign in.' });
 
   } catch (error) {
