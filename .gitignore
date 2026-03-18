@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Logs
+server.log
+studio.log
+*.log
+
+# Environment variables
+# .env  <-- intentionally NOT ignored per Vibecode platform requirements
+
+# Build output
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
