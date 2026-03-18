@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Logs
+# #logs
 server.log
 studio.log
 *.log
