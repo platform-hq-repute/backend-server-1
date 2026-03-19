@@ -4,24 +4,7 @@ import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { authenticator } from 'otplib';import QRCode from 'qrcode';
 import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 dotenv.config();
-
-// Generate config.js for web pages from env vars (replaces cloud build placeholder substitution)
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const configOutputPath = path.join(__dirname, '../web/config.js');
-const configContent = `window.REPUTEHQ_CONFIG = {
-  SUPABASE_URL: '${process.env.SUPABASE_URL || ''}',
-  SUPABASE_ANON_KEY: '${process.env.SUPABASE_ANON_KEY || ''}',
-  OPENAI_API_KEY: '${process.env.OPENAI_API_KEY || process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY || ''}',
-  APP_NAME: 'ReputeHQ',
-  ENVIRONMENT: '${process.env.NODE_ENV || 'production'}'
-};`;
-fs.writeFileSync(configOutputPath, configContent);
-console.log('config.js generated for web pages');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,9 +15,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-
-// Serve web frontend static files
-app.use(express.static(path.join(__dirname, '../web')));
 
 // Initialize Supabase
 const supabase = createClient(
